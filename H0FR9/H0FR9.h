@@ -29,7 +29,7 @@
 #define	MODULE_PN		_H0FR9
 
 /* Port-related Definitions */
-#define	NUM_OF_PORTS	6
+#define	NUM_OF_PORTS	5
 #define P_PROG 			P2		/* ST factory bootloader UART */
 
 /* Define Available ports */
@@ -118,10 +118,6 @@
 #define NUM_MODULE_PARAMS		1
 
 /* Module-specific Enumeration Definitions *********************************/
-/* Basic colors */
-enum BasicColors {
-	BLACK = 1, WHITE, RED, BLUE, YELLOW, CYAN, MAGENTA, GREEN, AQUA, PURPLE, LIGHTBLUE, ORANGE, INDIGO,
-};
 
 enum RGBLedMode {
 	RGB_PULSE_RGB = 1,    /* Pulsing RGB colors */
@@ -169,15 +165,6 @@ extern void SystemClock_Config(void);
 /***************************************************************************/
 /***************************** General Functions ***************************/
 /***************************************************************************/
-Module_Status LedOff(void);
-Module_Status LedOn(uint8_t intensity);
-Module_Status LedToggle(uint8_t intensity);
-Module_Status SetColor(uint8_t color, uint8_t intensity);
-Module_Status LedSweep(uint8_t mode, uint32_t period, int32_t repeat);
-Module_Status SetRGB(uint8_t red, uint8_t green, uint8_t blue, uint8_t intensity);
-Module_Status SetPulseColor(uint8_t color, uint32_t period, uint32_t dc, int32_t repeat);
-Module_Status LedDim(uint8_t color, uint8_t mode, uint32_t period, uint32_t wait, int32_t repeat);
-Module_Status SetPulseRGB(uint8_t red, uint8_t green, uint8_t blue, uint32_t period, uint32_t dc, int32_t repeat);
 
 #endif /* H0FR9_H */
 
