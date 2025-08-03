@@ -2,7 +2,7 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name  : H01R0_inputs.h
+ File Name  : H0FR9_inputs.h
  Description: Declares functions for digital and analog inputs.
  ADC: Configures channels for analog input, temperature, voltage on ports P1, P2.
  GPIO: Defines pin mappings for ADC channels.

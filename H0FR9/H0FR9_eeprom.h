@@ -2,7 +2,7 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name  : H01R0_eeprom.h
+ File Name  : H0FR9_eeprom.h
  Description: Declares functions for emulated EEPROM in Flash.
  EEPROM: Initialize, read/write 1000 16-bit variables, format.
  Flash: Dual-group (4+4 pages) storage, sector erase.

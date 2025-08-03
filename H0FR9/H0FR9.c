@@ -2,8 +2,8 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name  : H01R0.c
- Description: Core source for H01R0 module, managing RGB LED control.
+ File Name  : H0FR9.c
+ Description: Core source for H0FR9 module, managing RGB LED control.
  Features: CLI commands for LED on/off, color, RGB, toggle, pulse, sweep, dim.
  Peripherals: UART1-6, TIM2-4 (PWM for RGB), low-power modes (stop/standby).
  Flash: Stores topology and command snippets in RO sections.
@@ -11,7 +11,7 @@
  */
 /* Includes ****************************************************************/
 #include "BOS.h"
-#include "H01R0_inputs.h"
+#include "H0FR9_inputs.h"
 
 /* Exported Typedef ********************************************************/
 /* Define UART variables */
@@ -553,7 +553,7 @@ void SetupPortForRemoteBootloaderUpdate(uint8_t port){
 }
 
 /***************************************************************************/
-/* H01R0 module initialization */
+/* H0FR9 module initialization */
 void Module_Peripheral_Init(void) {
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
@@ -594,30 +594,30 @@ void Module_Peripheral_Init(void) {
 }
 
 /***************************************************************************/
-/* H01R0 message processing task */
+/* H0FR9 message processing task */
 Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst, uint8_t shift) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 	uint32_t period = 0;
 	uint32_t dc = 0;
 	int32_t repeat = 0;
 
 	switch (code) {
-	case CODE_H01R0_ON:
+	case CODE_H0FR9_ON:
 		LedOn(cMessage[port - 1][shift]);
 		break;
 
-	case CODE_H01R0_OFF:
+	case CODE_H0FR9_OFF:
 		LedOff();
 		break;
 
-	case CODE_H01R0_TOGGLE:
+	case CODE_H0FR9_TOGGLE:
 		if (rgbLedState)
 			LedOff();
 		else
 			LedOn(cMessage[port - 1][shift]);
 		break;
 
-	case CODE_H01R0_COLOR:
+	case CODE_H0FR9_COLOR:
 		if (cMessage[port - 1][shift] == 0) {
 			/* Color definition from color list */
 			SetColor(cMessage[port - 1][1 + shift], cMessage[port - 1][2 + shift]);
@@ -627,7 +627,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 		}
 		break;
 
-	case CODE_H01R0_PULSE:
+	case CODE_H0FR9_PULSE:
 		if (cMessage[port - 1][shift] == 0) {
 			/* Color definition from color list */
 			period = ((uint32_t) cMessage[port - 1][2 + shift]) + ((uint32_t) cMessage[port - 1][3 + shift] << 8)
@@ -656,7 +656,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 		}
 		break;
 
-	case CODE_H01R0_SWEEP:
+	case CODE_H0FR9_SWEEP:
 
 		period = ((uint32_t) cMessage[port - 1][1 + shift]) + ((uint32_t) cMessage[port - 1][2 + shift] << 8)
 				+ ((uint32_t) cMessage[port - 1][3 + shift] << 16) + ((uint32_t) cMessage[port - 1][4 + shift] << 24);
@@ -666,7 +666,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 
 		break;
 
-	case CODE_H01R0_DIM:
+	case CODE_H0FR9_DIM:
 		period = ((uint32_t) cMessage[port - 1][2 + shift]) + ((uint32_t) cMessage[port - 1][3 + shift] << 8)
 				+ ((uint32_t) cMessage[port - 1][4 + shift] << 16) + ((uint32_t) cMessage[port - 1][5 + shift] << 24);
 		dc = ((uint32_t) cMessage[port - 1][6 + shift]) + ((uint32_t) cMessage[port - 1][7 + shift] << 8)
@@ -677,7 +677,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 
 		break;
 	default:
-		result = H01R0_ERR_UNKNOWNMESSAGE;
+		result = H0FR9_ERR_UNKNOWNMESSAGE;
 		break;
 	}
 
@@ -825,15 +825,15 @@ Module_Status startPWM(uint8_t red, uint8_t green, uint8_t blue, uint8_t intensi
 	htim4.Instance->CCR2 = ((intensity / 100.0f) * ((uint8_t) green / 255.0f) * period);
 
 	if (HAL_TIM_PWM_Start(&htim2, RGB_RED_TIM_CH) != HAL_OK)
-		return H01R0_ERROR;
+		return H0FR9_ERROR;
 
 	if (HAL_TIM_PWM_Start(&htim3, RGB_BLUE_TIM_CH) != HAL_OK)
-		return H01R0_ERROR;
+		return H0FR9_ERROR;
 
 	if (HAL_TIM_PWM_Start(&htim4, RGB_GREEN_TIM_CH) != HAL_OK)
-		return H01R0_ERROR;
+		return H0FR9_ERROR;
 
-	return H01R0_OK;
+	return H0FR9_OK;
 }
 
 /***************************************************************************/
@@ -1017,7 +1017,7 @@ void RGBdim(uint8_t mode) {
 /***************************************************************************/
 /* Turn on RGB LED (white color) */
 Module_Status LedOn(uint8_t intensity) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 
 	if (intensity == 0) {
 		htim2.Instance->CCR1 = 0;
@@ -1026,16 +1026,16 @@ Module_Status LedOn(uint8_t intensity) {
 
 		rgbLedState = 0;
 
-		return H01R0_OK;
+		return H0FR9_OK;
 	} else if (intensity <= 100) {
 		result = startPWM(255, 255, 255, intensity);
 
-		if (result == H01R0_OK)
+		if (result == H0FR9_OK)
 			rgbLedState = 1;
 
 		return result;
 	} else
-		return H01R0_ERR_WRONGINTENSITY;
+		return H0FR9_ERR_WRONGINTENSITY;
 
 }
 
@@ -1054,13 +1054,13 @@ Module_Status LedOff(void) {
 	rgbLedState = 0;
 	rgbLedMode = 0;
 
-	return H01R0_OK;
+	return H0FR9_OK;
 }
 
 /***************************************************************************/
 /* Toggle RGB LED  */
 Module_Status LedToggle(uint8_t intensity) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 
 	if (rgbLedState)
 		result = LedOff();
@@ -1076,7 +1076,7 @@ Module_Status SetRGB(uint8_t red, uint8_t green, uint8_t blue, uint8_t intensity
 	if (intensity == 0)
 		return LedOn(0);
 	else if (intensity > 100)
-		return H01R0_ERR_WRONGINTENSITY;
+		return H0FR9_ERR_WRONGINTENSITY;
 	else
 		return startPWM(red, green, blue, intensity);
 }
@@ -1084,12 +1084,12 @@ Module_Status SetRGB(uint8_t red, uint8_t green, uint8_t blue, uint8_t intensity
 /***************************************************************************/
 /* Set LED color from a predefined color list (continuously) */
 Module_Status SetColor(uint8_t color, uint8_t intensity) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 
 	if (!intensity)
 		return LedOn(0);
 	else if (intensity > 100)
-		return H01R0_ERR_WRONGINTENSITY;
+		return H0FR9_ERR_WRONGINTENSITY;
 	else {
 		switch (color) {
 		case BLACK:
@@ -1125,7 +1125,7 @@ Module_Status SetColor(uint8_t color, uint8_t intensity) {
 			break;
 
 		default:
-			result = H01R0_ERR_WRONGCOLOR;
+			result = H0FR9_ERR_WRONGCOLOR;
 			break;
 		}
 	}
@@ -1136,7 +1136,7 @@ Module_Status SetColor(uint8_t color, uint8_t intensity) {
 /***************************************************************************/
 /* Activate the RGB LED pulse command with RGB values. Set repeat to -1 for periodic signals */
 Module_Status SetPulseRGB(uint8_t red, uint8_t green, uint8_t blue, uint32_t period, uint32_t dc, int32_t repeat) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 
 	rgbRed = red;
 	rgbGreen = green;
@@ -1153,7 +1153,7 @@ Module_Status SetPulseRGB(uint8_t red, uint8_t green, uint8_t blue, uint32_t per
 /***************************************************************************/
 /* Activate the RGB LED pulse command with a specific color. Set repeat to -1 for periodic signals */
 Module_Status SetPulseColor(uint8_t color, uint32_t period, uint32_t dc, int32_t repeat) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 
 	rgbColor = color;
 	rgbPeriod = period;
@@ -1173,7 +1173,7 @@ Module_Status LedSweep(uint8_t mode, uint32_t period, int32_t repeat) {
 
 	if (mode == 3 || mode == 4) {
 
-		Module_Status result = H01R0_OK;
+		Module_Status result = H0FR9_OK;
 
 		rgbPeriod = period;
 		rgbCount = repeat;
@@ -1181,7 +1181,7 @@ Module_Status LedSweep(uint8_t mode, uint32_t period, int32_t repeat) {
 
 		return result;
 	} else {
-		return H01R0_ERR_WRONGMODE;
+		return H0FR9_ERR_WRONGMODE;
 	}
 }
 
@@ -1189,7 +1189,7 @@ Module_Status LedSweep(uint8_t mode, uint32_t period, int32_t repeat) {
 /* Activate RGB LED dim mode using one of the basic colors. Set repeat to -1 for periodic signals */
 Module_Status LedDim(uint8_t color, uint8_t mode, uint32_t period, uint32_t wait, int32_t repeat) {
 	if (mode >= 5 && mode <= 12) {
-		Module_Status result = H01R0_OK;
+		Module_Status result = H0FR9_OK;
 
 		rgbColor = color;
 		rgbPeriod = period;
@@ -1199,7 +1199,7 @@ Module_Status LedDim(uint8_t color, uint8_t mode, uint32_t period, uint32_t wait
 
 		return result;
 	} else {
-		return H01R0_ERR_WRONGMODE;
+		return H0FR9_ERR_WRONGMODE;
 	}
 }
 
@@ -1241,7 +1241,7 @@ portBASE_TYPE demoCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const i
 
 /***************************************************************************/
 portBASE_TYPE onCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 
 	int8_t *pcParameterString1;
 	portBASE_TYPE xParameterStringLength1 = 0;
@@ -1265,9 +1265,9 @@ portBASE_TYPE onCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int
 	result = LedOn(intensity);
 
 	/* Respond to the command */
-	if (result == H01R0_OK)
+	if (result == H0FR9_OK)
 		sprintf((char*) pcWriteBuffer, (char*) pcOKMessage, intensity);
-	else if (result == H01R0_ERR_WRONGINTENSITY)
+	else if (result == H0FR9_ERR_WRONGINTENSITY)
 		strcpy((char*) pcWriteBuffer, (char*) pcWrongIntensityMessage);
 
 	/* There is no more data to return after this single string, so return
@@ -1297,7 +1297,7 @@ portBASE_TYPE offCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const in
 
 /***************************************************************************/
 portBASE_TYPE colorCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 	uint8_t color = 0;
 	uint8_t intensity = 0;
 	char par[15] = { 0 };
@@ -1344,13 +1344,13 @@ portBASE_TYPE colorCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
 	result = SetColor(color, intensity);
 
 	/* Respond to the command */
-	if (result == H01R0_OK) {
+	if (result == H0FR9_OK) {
 		/* Isolate first parameter string */
 		strncpy(par, (char*) pcParameterString1, xParameterStringLength1);
 		sprintf((char*) pcWriteBuffer, (char*) pcOKMessage, par, intensity);
-	} else if (result == H01R0_ERR_WRONGCOLOR)
+	} else if (result == H0FR9_ERR_WRONGCOLOR)
 		strcpy((char*) pcWriteBuffer, (char*) pcWrongColorMessage);
-	else if (result == H01R0_ERR_WRONGINTENSITY)
+	else if (result == H0FR9_ERR_WRONGINTENSITY)
 		strcpy((char*) pcWriteBuffer, (char*) pcWrongIntensityMessage);
 
 	/* There is no more data to return after this single string, so return
@@ -1360,7 +1360,7 @@ portBASE_TYPE colorCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
 
 /***************************************************************************/
 portBASE_TYPE RGBCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 	uint8_t red = 0;
 	uint8_t green = 0;
 	uint8_t blue = 0;
@@ -1398,11 +1398,11 @@ portBASE_TYPE RGBCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const in
 	result = SetRGB(red, green, blue, intensity);
 
 	/* Respond to the command */
-	if (result == H01R0_OK)
+	if (result == H0FR9_OK)
 		sprintf((char*) pcWriteBuffer, (char*) pcOKMessage, red, green, blue, intensity);
-	else if (result == H01R0_ERR_WRONGCOLOR)
+	else if (result == H0FR9_ERR_WRONGCOLOR)
 		strcpy((char*) pcWriteBuffer, (char*) pcWrongColorMessage);
-	else if (result == H01R0_ERR_WRONGINTENSITY)
+	else if (result == H0FR9_ERR_WRONGINTENSITY)
 		strcpy((char*) pcWriteBuffer, (char*) pcWrongIntensityMessage);
 
 	/* There is no more data to return after this single string, so return
@@ -1412,7 +1412,7 @@ portBASE_TYPE RGBCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const in
 
 /***************************************************************************/
 portBASE_TYPE toggleCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 
 	int8_t *pcParameterString1;
 	portBASE_TYPE xParameterStringLength1 = 0;
@@ -1437,11 +1437,11 @@ portBASE_TYPE toggleCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const
 	result = LedToggle(intensity);
 
 	/* Respond to the command */
-	if ((result == H01R0_OK) && rgbLedState)
+	if ((result == H0FR9_OK) && rgbLedState)
 		sprintf((char*) pcWriteBuffer, (char*) pcOK1Message, intensity);
-	else if ((result == H01R0_OK) && !rgbLedState)
+	else if ((result == H0FR9_OK) && !rgbLedState)
 		sprintf((char*) pcWriteBuffer, (char*) pcOK0Message, intensity);
-	else if (result == H01R0_ERR_WRONGINTENSITY)
+	else if (result == H0FR9_ERR_WRONGINTENSITY)
 		strcpy((char*) pcWriteBuffer, (char*) pcWrongIntensityMessage);
 
 	/* There is no more data to return after this single string, so return
@@ -1451,7 +1451,7 @@ portBASE_TYPE toggleCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const
 
 /***************************************************************************/
 portBASE_TYPE pulseColorCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 	uint8_t color = 0;
 	uint32_t period = 0, dc = 0;
 	int32_t repeat = 0;
@@ -1509,7 +1509,7 @@ portBASE_TYPE pulseColorCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, c
 	result = SetPulseColor(color, period, dc, repeat);
 
 	/* Respond to the command */
-	if (result == H01R0_OK) {
+	if (result == H0FR9_OK) {
 		/* Isolate first parameter string */
 		strncpy(par, (char*) pcParameterString1, xParameterStringLength1);
 		if (repeat == -1)
@@ -1525,7 +1525,7 @@ portBASE_TYPE pulseColorCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, c
 
 /***************************************************************************/
 portBASE_TYPE pulseRGBCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 	uint8_t red = 0;
 	uint8_t green = 0;
 	uint8_t blue = 0;
@@ -1577,7 +1577,7 @@ portBASE_TYPE pulseRGBCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, con
 	result = SetPulseRGB(red, green, blue, period, dc, repeat);
 
 	/* Respond to the command */
-	if (result == H01R0_OK) {
+	if (result == H0FR9_OK) {
 		if (repeat == -1)
 			sprintf((char*) pcWriteBuffer, (char*) pcMessageInf, red, green, blue, period, dc);
 		else
@@ -1591,7 +1591,7 @@ portBASE_TYPE pulseRGBCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, con
 
 /***************************************************************************/
 portBASE_TYPE sweepCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 	uint8_t mode = 0;
 	uint32_t period = 0;
 	int32_t repeat = 0;
@@ -1631,7 +1631,7 @@ portBASE_TYPE sweepCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
 	result = LedSweep(mode, period, repeat);
 
 	/* Respond to the command */
-	if (result == H01R0_OK) {
+	if (result == H0FR9_OK) {
 		/* Isolate first parameter string */
 		strncpy(par, (char*) pcParameterString1, xParameterStringLength1);
 		if (repeat == -1)
@@ -1647,7 +1647,7 @@ portBASE_TYPE sweepCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
 
 /***************************************************************************/
 portBASE_TYPE dimCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString) {
-	Module_Status result = H01R0_OK;
+	Module_Status result = H0FR9_OK;
 	uint8_t color = 0, mode = 0;
 	uint32_t period = 0, wait = 0;
 	int32_t repeat = 0;
@@ -1725,7 +1725,7 @@ portBASE_TYPE dimCommand(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const in
 	result = LedDim(color, mode, period, wait, repeat);
 
 	/* Respond to the command */
-	if (result == H01R0_OK) {
+	if (result == H0FR9_OK) {
 		/* Isolate first and second parameter strings. */
 		strncpy(par1, (char*) pcParameterString1, xParameterStringLength1);
 		strncpy(par2, (char*) pcParameterString2, xParameterStringLength2);

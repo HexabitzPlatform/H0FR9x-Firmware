@@ -2,8 +2,8 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name  : H01R0.h
- Description: Header for H01R0 module, defining hardware and software interfaces.
+ File Name  : H0FR9.h
+ Description: Header for H0FR9 module, defining hardware and software interfaces.
  Module: RGB LED control with UART communication.
  Ports: 6 UART ports (USART1-6) mapped to P1-P6.
  Timers: TIM2-4 for RGB PWM (red, green, blue).
@@ -13,20 +13,20 @@
  */
 
 /* Define to prevent recursive inclusion ***********************************/
-#ifndef H01R0_H
-#define H01R0_H
+#ifndef H0FR9_H
+#define H0FR9_H
 
 /* Includes ****************************************************************/
 #include "BOS.h"
-#include "H01R0_MemoryMap.h"
-#include "H01R0_uart.h"
-#include "H01R0_gpio.h"
-#include "H01R0_dma.h"
-#include "H01R0_inputs.h"
-#include "H01R0_eeprom.h"
+#include "H0FR9_MemoryMap.h"
+#include "H0FR9_uart.h"
+#include "H0FR9_gpio.h"
+#include "H0FR9_dma.h"
+#include "H0FR9_inputs.h"
+#include "H0FR9_eeprom.h"
 
 /* Exported Macros *********************************************************/
-#define	MODULE_PN		_H01R0
+#define	MODULE_PN		_H0FR9
 
 /* Port-related Definitions */
 #define	NUM_OF_PORTS	6
@@ -141,12 +141,12 @@ enum RGBLedMode {
 /* Module-specific Type Definition *****************************************/
 /* Module-status Type Definition */
 typedef enum {
-	H01R0_OK = 0,
-	H01R0_ERR_UNKNOWNMESSAGE,
-	H01R0_ERR_WRONGCOLOR,
-	H01R0_ERR_WRONGINTENSITY,
-	H01R0_ERR_WRONGMODE,
-	H01R0_ERROR = 255
+	H0FR9_OK = 0,
+	H0FR9_ERR_UNKNOWNMESSAGE,
+	H0FR9_ERR_WRONGCOLOR,
+	H0FR9_ERR_WRONGINTENSITY,
+	H0FR9_ERR_WRONGMODE,
+	H0FR9_ERROR = 255
 } Module_Status;
 
 /* Export UART variables */
@@ -179,6 +179,6 @@ Module_Status SetPulseColor(uint8_t color, uint32_t period, uint32_t dc, int32_t
 Module_Status LedDim(uint8_t color, uint8_t mode, uint32_t period, uint32_t wait, int32_t repeat);
 Module_Status SetPulseRGB(uint8_t red, uint8_t green, uint8_t blue, uint32_t period, uint32_t dc, int32_t repeat);
 
-#endif /* H01R0_H */
+#endif /* H0FR9_H */
 
 /***************** (C) COPYRIGHT HEXABITZ ***** END OF FILE ****************/

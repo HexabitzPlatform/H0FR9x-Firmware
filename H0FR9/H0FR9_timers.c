@@ -2,7 +2,7 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name  : H01R0_timers.c
+ File Name  : H0FR9_timers.c
  Description: Configures timers and watchdog for delays and PWM.
  Timers: TIM14 (usec), TIM15 (msec), TIM2-4 (RGB PWM).
  IWDG: 500 ms timeout watchdog.
